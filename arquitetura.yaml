@@ -17,5 +17,10 @@ test: # test images (optional)
 # Classes
 names:
   0: poste colonial
+  1: grade ornamental colonial
+  2: rua de pedra colonial
+  3: porta arquitetura colonial
+  4: igreja da se
+  5: janela colonial
 
   # "c:\users\bobgreen\documents\pythonscripts\python_envs\yolov5env\scripts\python.exe"  "C:\Users\BobGreen\Documents\PythonScripts\python_envs\yolov5env\Scripts\tensorboard.exe" --logdir runs\train_among

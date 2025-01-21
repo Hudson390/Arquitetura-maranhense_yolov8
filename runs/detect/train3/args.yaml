@@ -1,7 +1,7 @@
 task: detect
 mode: train
 model: yolov8n.pt
-data: teste.yaml
+data: arquitetura.yaml
 epochs: 30
 time: null
 patience: 100
