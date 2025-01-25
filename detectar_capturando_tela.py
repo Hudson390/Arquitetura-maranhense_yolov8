@@ -1,71 +1,70 @@
-from ultralytics import YOLO
-import cv2
-from windowcapture import WindowCapture
-from collections import defaultdict
-import numpy as np
+import os
+import sys
+from contextlib import redirect_stdout, redirect_stderr
 
-#wincap = WindowCapture("Nome_da_Janela")
-offset_x = 400 #0
-offset_y = 300 #30
-wincap = WindowCapture(size=(800, 600), origin=(offset_x, offset_y))
+# Nome do arquivo de log
+log_file = "terminal.log"
 
-# Usa modelo da Yolo
-# Model	    size    mAPval  Speed       Speed       params  FLOPs
-#           (pixels) 50-95  CPU ONNX A100 TensorRT   (M)     (B)
-#                           (ms)        (ms)
-# YOLOv8n	640	    37.3	80.4	    0.99	    3.2	    8.7
-# YOLOv8s	640	    44.9	128.4	    1.20	    11.2	28.6
-# YOLOv8m	640	    50.2	234.7	    1.83	    25.9	78.9
-# YOLOv8l	640	    52.9	375.2	    2.39	    43.7	165.2
-# YOLOv8x	640	    53.9	479.1	    3.53	    68.2	257.8
+# Encapsular a lógica principal
+def main():
+    # TODO: Coloque aqui o código completo do seu script
+    from ultralytics import YOLO
+    import cv2
+    from windowcapture import WindowCapture
+    from collections import defaultdict
+    import numpy as np
 
-#model = YOLO("yolov8n.pt")
+    offset_x = 0
+    offset_y = 30
+    wincap = WindowCapture(size=(1366, 780), origin=(offset_x, offset_y))
 
-# Usa modelo treinado 
-model = YOLO("runs/detect/train/weights/best.pt")
+    model = YOLO("runs/detect/train/weights/best.pt")
 
-track_history = defaultdict(lambda: [])
-seguir = True
-deixar_rastro = True
+    track_history = defaultdict(lambda: [])
+    seguir = True
+    deixar_rastro = True
 
-while True:
-    img = wincap.get_screenshot()
+    while True:
+        img = wincap.get_screenshot()
 
-    if seguir:
-        results = model.track(img, persist=True)
-    else:
-        results = model(img)
+        if seguir:
+            results = model.track(img, persist=True)
+        else:
+            results = model(img)
 
-    # Process results list
-    for result in results:
-        # Visualize the results on the frame
-        img = result.plot()
+        for result in results:
+            img = result.plot()
 
-        if seguir and deixar_rastro:
-            try:
-                # Get the boxes and track IDs
-                boxes = result.boxes.xywh.cpu()
-                track_ids = result.boxes.id.int().cpu().tolist()
+            if seguir and deixar_rastro:
+                try:
+                    boxes = result.boxes.xywh.cpu()
+                    track_ids = result.boxes.id.int().cpu().tolist()
 
-                # Plot the tracks
-                for box, track_id in zip(boxes, track_ids):
-                    x, y, w, h = box
-                    track = track_history[track_id]
-                    track.append((float(x), float(y)))  # x, y center point
-                    if len(track) > 30:  # retain 90 tracks for 90 frames
-                        track.pop(0)
+                    for box, track_id in zip(boxes, track_ids):
+                        x, y, w, h = box
+                        track = track_history[track_id]
+                        track.append((float(x), float(y)))
+                        if len(track) > 30:
+                            track.pop(0)
 
-                    # Draw the tracking lines
-                    points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
-                    cv2.polylines(img, [points], isClosed=False, color=(230, 0, 0), thickness=5)
-            except:
-                pass
+                        points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+                        cv2.polylines(img, [points], isClosed=False, color=(230, 0, 0), thickness=5)
+                except:
+                    pass
 
-    cv2.imshow("Tela", img)
+        cv2.imshow("Tela", img)
 
-    k = cv2.waitKey(1)
-    if k == ord('q'):
-        break
+        k = cv2.waitKey(1)
+        if k == ord('q'):
+            break
 
-cv2.destroyAllWindows()
-print("desligando")
+    cv2.destroyAllWindows()
+    print("desligando")
+
+# Salvar tudo que é impresso no terminal
+with open(log_file, "w") as f:
+    with redirect_stdout(f), redirect_stderr(f):
+        main()
+
+# Indicar ao usuário que o log foi salvo
+print(f"Execução completa. Log salvo em '{log_file}'.")
