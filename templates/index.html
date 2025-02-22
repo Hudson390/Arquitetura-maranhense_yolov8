@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YOLO Web Detector</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #1e1e1e;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .loader {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-top: 5px solid #fff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Detecção de Objetos</h2>
+      <button id="startButton">Iniciar Detecção</button>
+      <div class="loader" id="loader"></div>
+      <canvas id="canvas" style="display: none"></canvas>
+      <img
+        id="processed"
+        src=""
+        alt="Detecção em tempo real"
+        style="display: none"
+      />
+    </div>
+
+    <script>
+      const startButton = document.getElementById("startButton");
+      const canvas = document.getElementById("canvas");
+      const img = document.getElementById("processed");
+      const loader = document.getElementById("loader");
+      const context = canvas.getContext("2d");
+
+      let video;
+      let isCapturing = false;
+
+      startButton.addEventListener("click", () => {
+        if (!isCapturing) {
+          startDetection();
+          isCapturing = true;
+          startButton.style.display = "none"; // Esconde o botão depois de iniciar
+          loader.style.display = "block"; // Mostra o loader enquanto inicia
+        }
+      });
+
+      function startDetection() {
+        video = document.createElement("video");
+        video.setAttribute("autoplay", "");
+        video.setAttribute("playsinline", "");
+
+        navigator.mediaDevices
+          .getUserMedia({ video: { facingMode: "environment" } })
+          .then((stream) => {
+            video.srcObject = stream;
+            loader.style.display = "none"; // Esconde o loader quando a câmera carregar
+            img.style.display = "block"; // Mostra a imagem processada
+            captureFrames();
+          })
+          .catch((err) => {
+            console.error("Erro ao acessar câmera:", err);
+            loader.style.display = "none";
+          });
+      }
+
+      function captureFrames() {
+        setInterval(() => {
+          if (video.videoWidth > 0 && video.videoHeight > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob((blob) => {
+              const formData = new FormData();
+              formData.append("frame", blob, "frame.jpg");
+
+              fetch("/video_feed", { method: "POST", body: formData })
+                .then((response) => response.blob())
+                .then((blob) => {
+                  img.src = URL.createObjectURL(blob);
+                });
+            }, "image/jpeg");
+          }
+        }, 500);
+      }
+    </script>
+  </body>
+</html>
