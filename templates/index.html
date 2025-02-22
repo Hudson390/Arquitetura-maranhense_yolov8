@@ -52,8 +52,8 @@
         background-color: #007bff;
         color: white;
         border: none;
-        padding: 10px 20px;
-        font-size: 18px;
+        padding: 10px 15px;
+        font-size: 16px;
         border-radius: 5px;
         cursor: pointer;
         transition: background 0.3s;
@@ -63,17 +63,32 @@
         background-color: #0056b3;
       }
 
+      #stopButton {
+        background-color: #dc3545;
+        display: none;
+      }
+
+      #stopButton:hover {
+        background-color: #a71d2a;
+      }
+
       img {
         max-width: 100%;
         border-radius: 10px;
         box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
       }
+
+      #labels {
+        margin-top: 10px;
+        font-size: 18px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
-      <h2>Detecção de Objetos</h2>
+      <h2>Arquitetura Maranhense</h2>
       <button id="startButton">Iniciar Detecção</button>
+      <button id="stopButton">Parar Detecção</button>
       <div class="loader" id="loader"></div>
       <canvas id="canvas" style="display: none"></canvas>
       <img
@@ -82,25 +97,39 @@
         alt="Detecção em tempo real"
         style="display: none"
       />
+      <div id="labels" style="display: none">
+        Rótulos detectados: <span id="detectedLabels"></span>
+      </div>
     </div>
 
     <script>
       const startButton = document.getElementById("startButton");
+      const stopButton = document.getElementById("stopButton");
       const canvas = document.getElementById("canvas");
       const img = document.getElementById("processed");
       const loader = document.getElementById("loader");
+      const labelsDiv = document.getElementById("labels");
+      const detectedLabels = document.getElementById("detectedLabels");
       const context = canvas.getContext("2d");
 
       let video;
       let isCapturing = false;
+      let interval;
+      let detectedObjects = new Set(); // Conjunto para armazenar rótulos únicos
 
       startButton.addEventListener("click", () => {
         if (!isCapturing) {
           startDetection();
           isCapturing = true;
-          startButton.style.display = "none"; // Esconde o botão depois de iniciar
-          loader.style.display = "block"; // Mostra o loader enquanto inicia
+          startButton.style.display = "none"; // Esconde o botão iniciar
+          stopButton.style.display = "block"; // Mostra o botão parar
+          labelsDiv.style.display = "none"; // Esconde os rótulos ao iniciar
+          detectedObjects.clear(); // Limpa os rótulos anteriores
         }
+      });
+
+      stopButton.addEventListener("click", () => {
+        stopDetection();
       });
 
       function startDetection() {
@@ -123,7 +152,7 @@
       }
 
       function captureFrames() {
-        setInterval(() => {
+        interval = setInterval(() => {
           if (video.videoWidth > 0 && video.videoHeight > 0) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -134,13 +163,29 @@
               formData.append("frame", blob, "frame.jpg");
 
               fetch("/video_feed", { method: "POST", body: formData })
-                .then((response) => response.blob())
-                .then((blob) => {
-                  img.src = URL.createObjectURL(blob);
+                .then((response) => response.json()) // Agora espera JSON com os rótulos
+                .then((data) => {
+                  img.src = data.image_url; // Exibir a imagem processada
+                  data.labels.forEach((label) => detectedObjects.add(label)); // Armazena os rótulos
                 });
             }, "image/jpeg");
           }
         }, 500);
+      }
+
+      function stopDetection() {
+        clearInterval(interval); // Para a captura de frames
+        if (video && video.srcObject) {
+          video.srcObject.getTracks().forEach((track) => track.stop()); // Desliga a câmera
+        }
+
+        stopButton.style.display = "none"; // Esconde o botão parar
+        startButton.style.display = "block"; // Mostra o botão iniciar
+        labelsDiv.style.display = "block"; // Mostra os rótulos detectados
+        detectedLabels.innerText =
+          detectedObjects.size > 0
+            ? Array.from(detectedObjects).join(", ")
+            : "Nenhum objeto detectado";
       }
     </script>
   </body>
