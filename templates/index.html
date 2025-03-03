@@ -68,6 +68,10 @@
         display: none;
       }
 
+      #mapaButton {
+        background-color: #dc3545;
+      }
+
       #stopButton:hover {
         background-color: #a71d2a;
       }
@@ -82,6 +86,21 @@
         margin-top: 10px;
         font-size: 18px;
       }
+
+      #mapButton {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      #mapButton:hover {
+        background-color: #1e7e34;
+      }
     </style>
   </head>
   <body>
@@ -89,6 +108,9 @@
       <h2>Arquitetura Maranhense</h2>
       <button id="startButton">Iniciar Detecção</button>
       <button id="stopButton">Parar Detecção</button>
+      <button id="mapaButton" onclick="window.location.href='/mapa'">
+        Ver Mapa
+      </button>
       <div class="loader" id="loader"></div>
       <canvas id="canvas" style="display: none"></canvas>
       <img

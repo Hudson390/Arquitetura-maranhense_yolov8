@@ -45,6 +45,11 @@ def video_feed():
 
     return jsonify({"image_url": f"data:image/jpeg;base64,{image_base64}", "labels": labels})
 
+@app.route("/mapa")
+def mapa():
+    return render_template("mapa.html")  # Serve o arquivo mapa.html
+
+
 if __name__ == "__main__":
     # Configuração HTTPS
     cert_file = "cert.pem"

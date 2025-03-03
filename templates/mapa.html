@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa do Centro Histórico</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #1e1e1e;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+
+      .map-container {
+        width: 90%;
+        max-width: 600px;
+        padding: 10px;
+        background-color: #282828;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+
+      .buttons {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+        width: 150px;
+      }
+
+      button:hover {
+        background-color: #a71d2a;
+      }
+
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 18px;
+        }
+        .map-container {
+          width: 95%;
+          padding: 5px;
+        }
+        button {
+          width: 120px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mapa do Centro Histórico</h1>
+    <div class="map-container">
+      <img
+        src="{{ url_for('static', filename='mapa.jpg') }}"
+        alt="Mapa do Centro Histórico"
+      />
+    </div>
+    <div class="buttons">
+      <button onclick="window.location.href='/'">Voltar</button>
+    </div>
+  </body>
+</html>
