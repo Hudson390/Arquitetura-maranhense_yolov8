@@ -76,6 +76,15 @@
         background-color: #a71d2a;
       }
 
+      #detailsButton {
+        background-color: #ffc107;
+        display: none;
+      }
+
+      #detailsButton:hover {
+        background-color: #e0a800;
+      }
+
       img {
         max-width: 100%;
         border-radius: 10px;
@@ -111,6 +120,7 @@
       <button id="mapaButton" onclick="window.location.href='/mapa'">
         Ver Mapa
       </button>
+      <button id="detailsButton">Ver Detalhes</button>
       <div class="loader" id="loader"></div>
       <canvas id="canvas" style="display: none"></canvas>
       <img
@@ -127,6 +137,7 @@
     <script>
       const startButton = document.getElementById("startButton");
       const stopButton = document.getElementById("stopButton");
+      const detailsButton = document.getElementById("detailsButton");
       const canvas = document.getElementById("canvas");
       const img = document.getElementById("processed");
       const loader = document.getElementById("loader");
@@ -145,6 +156,7 @@
           isCapturing = true;
           startButton.style.display = "none"; // Esconde o botão iniciar
           stopButton.style.display = "block"; // Mostra o botão parar
+          detailsButton.style.display = "none"; // Esconde o botão de detalhes
           labelsDiv.style.display = "none"; // Esconde os rótulos ao iniciar
           detectedObjects.clear(); // Limpa os rótulos anteriores
         }
@@ -152,6 +164,14 @@
 
       stopButton.addEventListener("click", () => {
         stopDetection();
+      });
+
+      detailsButton.addEventListener("click", () => {
+        let objetos = Array.from(detectedObjects);
+        if (objetos.length > 0) {
+          let url = "/detalhes?" + objetos.map(obj => `objetos=${encodeURIComponent(obj)}`).join("&");
+          window.location.href = url;
+        }
       });
 
       function startDetection() {
@@ -208,6 +228,10 @@
           detectedObjects.size > 0
             ? Array.from(detectedObjects).join(", ")
             : "Nenhum objeto detectado";
+
+        if (detectedObjects.size > 0) {
+          detailsButton.style.display = "block"; // Mostra o botão de detalhes se houver objetos detectados
+        }
       }
     </script>
   </body>

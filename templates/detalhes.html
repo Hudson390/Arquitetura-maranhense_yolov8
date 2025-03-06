@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Objetos Detectados</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #1e1e1e;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+        text-align: right; /* Alinha o conteúdo à direita */
+      }
+
+      h2 {
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      p {
+        text-align: justify; /* Justifica o texto */
+        margin-bottom: 20px;
+      }
+
+      .descricao {
+        text-align: justify; /* Justifica o texto */
+        margin-bottom: 20px;
+        padding: 10px; /* Adiciona padding */
+      }
+
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+        margin-top: 15px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Objetos Encontrados</h1>
+    {% for objeto, descricao in textos.items() %}
+    <h2>{{ objeto }}</h2>
+    <p>{{ descricao }}</p>
+    {% endfor %}
+  </body>
+</html>

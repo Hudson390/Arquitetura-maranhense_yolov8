@@ -5,11 +5,21 @@ import base64
 import ssl
 from ultralytics import YOLO
 
-# Inicializa a aplicação Flask
 app = Flask(__name__)
 
 # Carrega o modelo YOLO treinado
 model = YOLO("runs/detect/train/weights/best.pt")
+
+# Dicionário com descrições dos objetos detectados
+descriptions = {
+    "poste colonial": "Objeto típico das ruas de São Luís, o poste colonial é um elemento de iluminação que preserva o estilo europeu, com estrutura em ferro fundido e detalhes ornamentais, representando a influência arquitetônica portuguesa.",
+    "grade ornamental colonial": "Presente nas sacadas e janelas dos casarões coloniais, a grade ornamental colonial é feita geralmente em ferro, com desenhos curvilíneos e arabescos, conferindo elegância e proteção às fachadas.",
+    "rua de pedra colonial": "As ruas de pedra, também chamadas de calçamento pé de moleque, são características do centro histórico de São Luís. Construídas com pedras irregulares, essas vias preservam a atmosfera colonial da cidade.",
+    "porta arquitetura colonial": "As portas dos casarões coloniais maranhenses possuem dimensões amplas, com madeira maciça e detalhes entalhados, muitas vezes acompanhadas por bandeiras de vidro, refletindo a estética portuguesa.",
+    "igreja da Se": "Principal templo católico de São Luís, a Igreja da Sé combina elementos barrocos e neoclássicos. Construída no século XVII, destaca-se pelo altar ricamente decorado e pela importância histórica na cidade.",
+    "janela colonial": "Com estrutura em madeira e vidro, as janelas coloniais dos casarões maranhenses possuem venezianas para ventilação e bandeiras de vidro, garantindo luminosidade e estilo à arquitetura.",
+    "escultura leao heraldica": "Localizada no Palácio dos Leões, a escultura do Leão Heráldico simboliza força e poder, representando a herança portuguesa na arquitetura maranhense."
+}
 
 def process_frame(frame):
     """
@@ -17,7 +27,7 @@ def process_frame(frame):
     """
     results = model(frame)
     labels = []
-    
+
     for result in results:
         frame = result.plot()  # Plota as detecções na imagem
         labels.extend(result.names[i] for i in result.boxes.cls.int().tolist())  # Extrai os rótulos
@@ -45,10 +55,18 @@ def video_feed():
 
     return jsonify({"image_url": f"data:image/jpeg;base64,{image_base64}", "labels": labels})
 
+@app.route("/detalhes")
+def detalhes():
+    """
+    Exibe a página com descrições detalhadas dos objetos detectados.
+    """
+    objetos = request.args.getlist("objetos")
+    textos = {obj: descriptions.get(obj, "Descrição não encontrada") for obj in objetos}
+    return render_template("detalhes.html", textos=textos)
+
 @app.route("/mapa")
 def mapa():
-    return render_template("mapa.html")  # Serve o arquivo mapa.html
-
+    return render_template("mapa.html")
 
 if __name__ == "__main__":
     # Configuração HTTPS
